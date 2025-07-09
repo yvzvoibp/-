@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倒计时钟表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        label {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        input[type="datetime-local"] {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .countdown-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+        }
+
+        .countdown-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .countdown-label {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <label for="end-date">选择结束时间:</label>
+    <input type="datetime-local" id="end-date">
+    <button onclick="startCustomCountdown()">开始自定义倒计时</button>
+    <div id="countdown"></div>
+
+    <script>
+        // 默认目标时间：今天17:30
+        let targetDate = null;
+        
+        // 初始化日期输入框和默认倒计时
+        window.onload = function () {
+            // 设置输入框默认值为今天17:30
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const hours = '17';
+            const minutes = '30';
+            
+            const defaultTimeStr = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('end-date').value = defaultTimeStr;
+            
+            // 设置默认目标时间
+            targetDate = new Date(defaultTimeStr);
+            
+            // 立即开始倒计时
+            startCountdown();
+        };
+
+        // 开始默认倒计时（页面加载时自动调用）
+        function startCountdown() {
+            function updateCountdown() {
+                const now = new Date();
+                const timeDiff = targetDate - now;
+
+                if (timeDiff <= 0) {
+                    const countdownElement = document.getElementById('countdown');
+                    countdownElement.innerHTML = '<div>倒计时结束！</div>';
+                } else {
+                    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                    const countdownHTML = `
+                        <div class="countdown-section">
+                            <span class="countdown-value">${days}</span>
+                            <span class="countdown-label">天</span>
+                        </div>
+                        <div class="countdown-section">
+                            <span class="countdown-value">${hours}</span>
+                            <span class="countdown-label">小时</span>
+                        </div>
+                        <div class="countdown-section">
+                            <span class="countdown-value">${minutes}</span>
+                            <span class="countdown-label">分钟</span>
+                        </div>
+                        <div class="countdown-section">
+                            <span class="countdown-value">${seconds}</span>
+                            <span class="countdown-label">秒</span>
+                        </div>
+                    `;
+
+                    const countdownElement = document.getElementById('countdown');
+                    countdownElement.innerHTML = countdownHTML;
+                }
+            }
+
+            // 每秒更新一次倒计时
+            setInterval(updateCountdown, 1000);
+            // 立即更新一次，避免等待1秒
+            updateCountdown();
+        }
+
+        // 开始自定义倒计时（按钮点击时调用）
+        function startCustomCountdown() {
+            const endDateInput = document.getElementById('end-date');
+            targetDate = new Date(endDateInput.value);
+            startCountdown();
+        }
+    </script>
+</body>
+
+</html>
