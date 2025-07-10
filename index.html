@@ -128,6 +128,10 @@
         let targetDate = null;
         // 默认提醒语
         let defaultMessage = "下班！";
+        // 点击外部区域的计数器（隐藏功能）
+        let outsideClicks = 0;
+        // 弹窗是否已彻底关闭（隐藏功能）
+        let modalCompletelyClosed = false;
         
         // 初始化日期输入框和默认倒计时
         window.onload = function () {
@@ -151,6 +155,9 @@
 
         // 开始默认倒计时（页面加载时自动调用）
         function startCountdown() {
+            // 重置彻底关闭状态，允许下次倒计时显示弹窗
+            modalCompletelyClosed = false;
+            
             function updateCountdown() {
                 const now = new Date();
                 const timeDiff = targetDate - now;
@@ -159,8 +166,10 @@
                     const countdownElement = document.getElementById('countdown');
                     countdownElement.innerHTML = '<div>倒计时结束！</div>';
                     
-                    // 显示弹窗提醒
-                    showAlert();
+                    // 显示弹窗提醒（如果没有彻底关闭）
+                    if (!modalCompletelyClosed) {
+                        showAlert();
+                    }
                 } else {
                     const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -218,21 +227,30 @@
             const modal = document.getElementById('alert-modal');
             const messageElement = document.getElementById('modal-message');
             
+            // 重置点击计数器（每次弹窗显示时重置）
+            outsideClicks = 0;
+            
             messageElement.textContent = defaultMessage;
             modal.style.display = 'block';
         }
 
-        // 关闭弹窗
+        // 关闭弹窗（普通关闭，倒计时结束会再次弹出）
         function closeModal() {
             const modal = document.getElementById('alert-modal');
             modal.style.display = 'none';
         }
 
-        // 点击弹窗外部也可以关闭
+        // 点击弹窗外部区域处理（隐藏功能）
         window.onclick = function(event) {
             const modal = document.getElementById('alert-modal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            
+            if (event.target === modal && !modalCompletelyClosed) {
+                outsideClicks++;
+                
+                if (outsideClicks >= 3) {
+                    modal.style.display = 'none';
+                    modalCompletelyClosed = true;
+                }
             }
         }
     </script>
