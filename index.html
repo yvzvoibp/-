@@ -23,12 +23,14 @@
             margin-bottom: 10px;
         }
 
-        input[type="datetime-local"] {
+        input[type="datetime-local"],
+        input[type="text"] {
             padding: 12px;
             font-size: 16px;
             border: none;
             border-radius: 5px;
             outline: none;
+            margin-bottom: 15px;
         }
 
         button {
@@ -40,6 +42,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin: 5px;
         }
 
         button:hover {
@@ -68,18 +71,63 @@
         .countdown-label {
             font-size: 18px;
         }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .modal-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
     <label for="end-date">选择结束时间:</label>
     <input type="datetime-local" id="end-date">
+    
+    <label for="alert-message">自定义提醒语 (可选):</label>
+    <input type="text" id="alert-message" placeholder="默认为'下班！'">
+    
     <button onclick="startCustomCountdown()">开始自定义倒计时</button>
     <div id="countdown"></div>
+
+    <!-- 弹窗元素 -->
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-message" id="modal-message"></div>
+            <button onclick="closeModal()">确定</button>
+        </div>
+    </div>
 
     <script>
         // 默认目标时间：今天17:30
         let targetDate = null;
+        // 默认提醒语
+        let defaultMessage = "下班！";
         
         // 初始化日期输入框和默认倒计时
         window.onload = function () {
@@ -110,6 +158,9 @@
                 if (timeDiff <= 0) {
                     const countdownElement = document.getElementById('countdown');
                     countdownElement.innerHTML = '<div>倒计时结束！</div>';
+                    
+                    // 显示弹窗提醒
+                    showAlert();
                 } else {
                     const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -150,7 +201,39 @@
         function startCustomCountdown() {
             const endDateInput = document.getElementById('end-date');
             targetDate = new Date(endDateInput.value);
+            
+            // 保存用户自定义的提醒语（如果有）
+            const alertInput = document.getElementById('alert-message');
+            if (alertInput.value.trim() !== '') {
+                defaultMessage = alertInput.value;
+            } else {
+                defaultMessage = "下班！"; // 恢复默认值
+            }
+            
             startCountdown();
+        }
+
+        // 显示弹窗提醒
+        function showAlert() {
+            const modal = document.getElementById('alert-modal');
+            const messageElement = document.getElementById('modal-message');
+            
+            messageElement.textContent = defaultMessage;
+            modal.style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            const modal = document.getElementById('alert-modal');
+            modal.style.display = 'none';
+        }
+
+        // 点击弹窗外部也可以关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('alert-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
     </script>
 </body>
